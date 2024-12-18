@@ -6,13 +6,12 @@ class Program
 {
     public static void Main()
     {
-        Console.WriteLine("Напишите название файла(формат .txt) в той же директории что и программа");
+        Console.WriteLine("Напишите путь к файлу или переместите сам файл в консоль");
         WhileInput(out string fileName);
-
         FileManagment fileManagment = new(fileName);
-        Console.WriteLine(fileName);
-        Console.WriteLine(fileManagment.FilePath);
+
         List<List<int>> data = fileManagment.ReadData();
+        
         Console.WriteLine("Напишите число-цель: ");
         WhileInput(out int target);
         foreach (List<int> row in data)
@@ -23,7 +22,7 @@ class Program
 
     public static void WhileInput(out string input)
     {
-        while (string.IsNullOrWhiteSpace(input = Console.ReadLine()))
+        while (string.IsNullOrWhiteSpace(input = Console.ReadLine()) || !Path.Exists(input))
         {
             Console.WriteLine("Введите заного");
         }
@@ -40,45 +39,16 @@ class Program
 
 public class FileManagment
 {
-    public FileManagment(string fileName)
+    public FileManagment(string filePath)
     {
-        _fileName = fileName;
-        FilePath = GetFullPath(_fileName);
-
-
-        string[] splitFileName = _fileName.Split('.', StringSplitOptions.RemoveEmptyEntries);
-        string stringResultPath = string.Join('.', splitFileName[0], "Result", splitFileName[1]);
-
-        Console.WriteLine(stringResultPath);
-
-        FileResultPath = GetFullPath(stringResultPath);
+        FilePath = filePath;
+        string fileResultName = Path.GetFileNameWithoutExtension(FilePath) + ".Result" + ".txt";
+        FileResultPath = Path.GetDirectoryName(FilePath) + $"\\{fileResultName}";
     }
 
-    private string _fileName;
-    public string FileName
-    {
-        get { return _fileName; }
-        set
-        {
-            _fileName = value;
-            FilePath = GetFullPath(_fileName);
-
-            string[] splitFileName = _fileName.Split('.', StringSplitOptions.RemoveEmptyEntries);
-            string stringResultPath = string.Join('.', splitFileName[0], "Result", splitFileName[1]);
-
-            FileResultPath = GetFullPath(stringResultPath);
-        }
-    }
-
-    public string FilePath { get; private set; }
+    public string FilePath;
 
     public string FileResultPath { get; private set; }
-
-    private static string GetFullPath(string fileName)
-    {
-        string[] directoryWord = Directory.GetCurrentDirectory().Split('\\', StringSplitOptions.RemoveEmptyEntries);
-        return string.Join('\\', directoryWord[0..(directoryWord.Length - 4)]) + $"\\{fileName}";
-    }
 
     public List<List<int>> ReadData()
     {
